@@ -6,26 +6,20 @@ import (
 	"log"
 	"os"
 	"time"
+	data "weather/data/types"
 )
 
-// GeoData from ipgeolacation API
-type GeoData struct {
-	Sunrise  string `json:"sunrise"`
-	Sunset   string `json:"sunset"`
-	Moonrise string `json:"moonrise"`
-	Moonset  string `json:"moonset"`
-}
-
-// Fetch data from ipgeolocation.com
-func Fetch() GeoData {
-	var structuredData GeoData
-
-	tomorrow := time.Now().Add(time.Hour * 24).Format("2006-01-02")
+// GetGeoData returns GeoData
+func GetGeoData(date time.Time) data.GeoData {
+	var structuredData data.GeoData
 
 	geoKey := os.Getenv("GEO_KEY")
-	url := fmt.Sprintf("https://api.ipgeolocation.io/astronomy?apiKey=%v&lat=%.4f&long=%.4f&date=%v", geoKey, Latitude, Longtitude, tomorrow)
+	url := fmt.Sprintf("https://api.ipgeolocation.io/astronomy?apiKey=%v&lat=%.4f&long=%.4f&date=%v", geoKey, Latitude, Longtitude, date.Format("2006-01-02"))
 
-	data := Get(url, "geo")
+	headers := map[string]string{
+		"accept": "application/json",
+	}
+	data := Get(url, "geo", headers)
 
 	if err := json.Unmarshal(data, &structuredData); err != nil {
 		log.Printf("JSON Error: %v\n %v", err, data)

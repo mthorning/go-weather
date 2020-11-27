@@ -14,13 +14,15 @@ const Longtitude = -5.0507
 // Latitude for API requests - currently Truro
 const Latitude = 49.262951
 
-func fetchNewData(url string, filename string) []byte {
+func fetchNewData(url string, filename string, headers map[string]string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal("New Request:", err)
 	}
 
-	req.Header.Set("Accept", "application/json")
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
@@ -46,10 +48,10 @@ func fetchNewData(url string, filename string) []byte {
 }
 
 // Get returns either cached data from file in development or calls the API
-func Get(url string, filename string) []byte {
+func Get(url string, filename string, headers map[string]string) []byte {
 	cachedContent, err := ioutil.ReadFile(fmt.Sprintf("%v.json", filename))
 	if err != nil {
-		return fetchNewData(url, filename)
+		return fetchNewData(url, filename, headers)
 	}
 	return cachedContent
 }
